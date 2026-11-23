@@ -3,7 +3,7 @@ name: Release
 # One plugin, from a tag of its own: solax-v1.0.0, huawei-v1.0.0, goe-v1.0.0, shelly-v1.0.0. A charger fix ships without
 # a Gleanvolt release, and one plugin's release ships nothing of the others.
 #
-#   test      the whole solution, before anything gets a version number
+#   test      the plugin's own solution (<name>/Gleanvolt.Plugin.<Project>.slnx), before anything gets a version number
 #   image     ghcr.io/<owner>/gleanvolt-plugin-<name>:<version> and :latest, linux/amd64 + linux/arm64
 #   zips      self-contained, so nothing needs .NET installed: win-x64, linux-x64, linux-arm64
 #   release   the GitHub Release with the zips and their SHA256SUMS
@@ -57,7 +57,7 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - run: dotnet test Gleanvolt.Chargers.slnx -c Release
+      - run: dotnet test "${{ needs.plugin.outputs.name }}/Gleanvolt.Plugin.${{ needs.plugin.outputs.project }}.slnx" -c Release
 
   image:
     needs: [plugin, test]
@@ -110,10 +110,10 @@ jobs:
           VERSION: ${{ needs.plugin.outputs.version }}
         run: |
           out="artifacts/out/gleanvolt-plugin-${NAME}-${VERSION}-${{ matrix.rid }}"
-          dotnet publish "src/Gleanvolt.Plugin.${PROJECT}/Gleanvolt.Plugin.${PROJECT}.csproj" \
+          dotnet publish "${NAME}/src/Gleanvolt.Plugin.${PROJECT}/Gleanvolt.Plugin.${PROJECT}.csproj" \
             -c Release -r ${{ matrix.rid }} --self-contained true \
             -p:Version="${VERSION}" -p:SourceRevisionId="${GITHUB_SHA}" -o "$out"
-          cp LICENSE THIRD-PARTY-NOTICES.md "src/Gleanvolt.Plugin.${PROJECT}/README.md" "$out/"
+          cp LICENSE THIRD-PARTY-NOTICES.md "${NAME}/README.md" "$out/"
           (cd artifacts/out && zip -qr "$(basename "$out").zip" "$(basename "$out")")
       - uses: actions/upload-artifact@v4
         with:
@@ -143,5 +143,5 @@ jobs:
           [[ "$VERSION" == *-* ]] && flags="--prerelease"
           gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" $flags \
             --title "gleanvolt-plugin-${NAME} ${VERSION}" \
-            --notes "The ${NAME} charger plugin, ${VERSION}. Image: \`ghcr.io/${GITHUB_REPOSITORY_OWNER}/gleanvolt-plugin-${NAME}:${VERSION}\`. See src/ and its README for running it." \
+            --notes "The ${NAME} charger plugin, ${VERSION}. Image: \`ghcr.io/${GITHUB_REPOSITORY_OWNER}/gleanvolt-plugin-${NAME}:${VERSION}\`. How to run it: ${NAME}/README.md, also inside each zip." \
             *.zip SHA256SUMS

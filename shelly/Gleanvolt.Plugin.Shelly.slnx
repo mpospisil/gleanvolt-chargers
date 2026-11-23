@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/Gleanvolt.Plugin.Shelly/Gleanvolt.Plugin.Shelly.csproj" />
+  <Project Path="tests/Gleanvolt.Plugin.Shelly.Tests/Gleanvolt.Plugin.Shelly.Tests.csproj" />
+</Solution>

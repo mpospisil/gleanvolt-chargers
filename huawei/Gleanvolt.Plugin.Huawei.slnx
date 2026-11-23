@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/Gleanvolt.Plugin.Huawei/Gleanvolt.Plugin.Huawei.csproj" />
+  <Project Path="tests/Gleanvolt.Plugin.Huawei.Tests/Gleanvolt.Plugin.Huawei.Tests.csproj" />
+</Solution>

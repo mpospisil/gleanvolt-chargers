@@ -20,9 +20,11 @@ ARG SOURCE_REVISION=
 WORKDIR /source
 COPY NuGet.config Directory.Build.props ./
 COPY artifacts/feed/ artifacts/feed/
-COPY src/ src/
+# Each charger is a folder of its own, named for it in lower case: solax/src/Gleanvolt.Plugin.Solax.
+COPY . .
 RUN test -n "$PLUGIN" \
-    && dotnet publish "src/Gleanvolt.Plugin.${PLUGIN}/Gleanvolt.Plugin.${PLUGIN}.csproj" \
+    && folder=$(echo "$PLUGIN" | tr '[:upper:]' '[:lower:]') \
+    && dotnet publish "${folder}/src/Gleanvolt.Plugin.${PLUGIN}/Gleanvolt.Plugin.${PLUGIN}.csproj" \
         -a "$TARGETARCH" -c Release --self-contained false \
         -p:Version="$VERSION" -p:SourceRevisionId="$SOURCE_REVISION" -o /app \
     # The data directory, for the volume: created here, owned by the app's user below.

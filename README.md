@@ -7,46 +7,58 @@ commands the charger. A charger fix ships here, without a Gleanvolt release.
 
 | Plugin | Chargers | Over | Image | Page |
 |---|---|---|---|---|
-| [SolaX](src/Gleanvolt.Plugin.Solax/README.md) | X1/X3-HAC, X1/X3-EVC | Modbus TCP | `ghcr.io/mpospisil/gleanvolt-plugin-solax` | 8098 |
-| [Huawei](src/Gleanvolt.Plugin.Huawei/README.md) | SCharger-7KS-S0, SCharger-22KT-S0 | Modbus TCP | `ghcr.io/mpospisil/gleanvolt-plugin-huawei` | 8099 |
-| [go-e](src/Gleanvolt.Plugin.GoE/README.md) | go-e Charger V3+ | HTTP API v2 | `ghcr.io/mpospisil/gleanvolt-plugin-goe` | 8100 |
-| [Shelly](src/Gleanvolt.Plugin.Shelly/README.md) | Shelly TopAC (EVE01-11R) | Gen2 RPC | `ghcr.io/mpospisil/gleanvolt-plugin-shelly` | 8097 |
+| [SolaX](solax/README.md) | X1/X3-HAC, X1/X3-EVC | Modbus TCP | `ghcr.io/mpospisil/gleanvolt-plugin-solax` | 8098 |
+| [Huawei](huawei/README.md) | SCharger-7KS-S0, SCharger-22KT-S0 | Modbus TCP | `ghcr.io/mpospisil/gleanvolt-plugin-huawei` | 8099 |
+| [go-e](goe/README.md) | go-e Charger V3+ | HTTP API v2 | `ghcr.io/mpospisil/gleanvolt-plugin-goe` | 8100 |
+| [Shelly](shelly/README.md) | Shelly TopAC (EVE01-11R) | Gen2 RPC | `ghcr.io/mpospisil/gleanvolt-plugin-shelly` | 8097 |
 
 Each runs from its image (`linux/amd64`, `linux/arm64`) or from a self-contained zip (`win-x64`, `linux-x64`,
 `linux-arm64`), and is released on its own: a tag `<name>-v<version>`, such as `solax-v1.0.0`. Gleanvolt 1.3.1 or later
 (charger contract 1.1).
 
-## Writing one
+## Layout: a solution per charger
 
-A plugin is an ASP.NET Core app on the MIT [Gleanvolt provider SDK](https://www.nuget.org/packages/Gleanvolt.Providers.Client)
-(`Gleanvolt.Providers.Client`, with `Gleanvolt.Modbus` for a Modbus charger). Here, `Gleanvolt.Chargers.Shared` holds
-what every plugin shares: the host and its guarded page, the base of a charger (`PluginCharger`) and its status, the
-page's frame with its sections, the address store, the search, and the recording for testers. A plugin keeps its device:
+Each charger is a folder of its own, laid out as a plugin in its own repository is:
 
-- a `PluginCharger`: `Capabilities`, `ReadAsync`, `SetCurrentAsync`, `SetChargingAllowedAsync`, calling `Healthy` or
-  `Problem` as it reads;
-- a page, `Pages/Home.razor`, in a `PluginFrame` with what it shows of its charger;
-- optionally an `IChargerSearch`, a read that says whether an address is its charger;
-- a `Program.cs` that names it (`PluginInfo`) and registers its transport.
+```
+solax/
+  Gleanvolt.Plugin.Solax.slnx
+  README.md
+  src/Gleanvolt.Plugin.Solax/      the plugin: Program.cs, its charger, Pages/Home.razor
+  tests/Gleanvolt.Plugin.Solax.Tests/
+```
 
-The contract (what a reading must hold, what a pause is, the commands) is in Gleanvolt's
-[docs/PROVIDERS.md](https://github.com/mpospisil/gleanvolt/blob/main/docs/PROVIDERS.md#the-charger-kind).
+A charger references only packages from nuget.org: `Gleanvolt.Chargers.Hosting` (the host, the page, the settings, the
+search, the recording) and, for its tests, `Gleanvolt.Providers.Testing` (`PluginHarness`, `FakeModbusServer`). Nothing
+is shared between the folders but `Directory.Build.props` and `NuGet.config`, so any one of them can be lifted into a
+repository of its own unchanged, with those two files beside it.
+
+## Your own charger, in your own repository
+
+You don't need this repository to support another charger. Start a repository with a folder like the ones here, or copy
+one, and follow the
+[Gleanvolt.Chargers.Hosting README](https://github.com/mpospisil/gleanvolt/blob/main/src/Gleanvolt.Chargers.Hosting/README.md):
+a plugin is a `PluginCharger` (its capabilities, a read, the two commands), a page in the shared `PluginFrame`, and a
+`Program.cs` that names it. Gleanvolt takes any charger plugin with the provider token; the owner runs it. The contract
+is in Gleanvolt's [docs/PROVIDERS.md](https://github.com/mpospisil/gleanvolt/blob/main/docs/PROVIDERS.md#the-charger-kind).
+A charger worth having here is welcome as a pull request.
 
 ## Building
 
 ```sh
-dotnet test Gleanvolt.Chargers.slnx
+dotnet test solax/Gleanvolt.Plugin.Solax.slnx      # one charger
+dotnet test Gleanvolt.Chargers.slnx                # every charger
 ```
 
-The tests run each plugin against the SDK's `ChargerTestHub` (`Gleanvolt.Providers.Testing`) over a real socket, with
-a fake charger on Modbus TCP or HTTP.
+The tests run each plugin against the SDK's `ChargerTestHub` over a real socket, with a fake charger on Modbus TCP or
+HTTP.
 
-The SDK comes from nuget.org (`GleanvoltSdkVersion` in `Directory.Build.props`). To build against an SDK not released
-yet, pack it from Gleanvolt's source into `artifacts/feed/`, which `NuGet.config` also reads:
+The packages come from nuget.org (`GleanvoltSdkVersion` in `Directory.Build.props`). To build against ones not released
+yet, pack them from Gleanvolt's source into `artifacts/feed/`, which `NuGet.config` also reads:
 
 ```sh
 cd ../gleanvolt
-for p in Gleanvolt.Providers.Contracts Gleanvolt.Providers.Client Gleanvolt.Providers.Testing Gleanvolt.Modbus; do
+for p in Gleanvolt.Providers.Contracts Gleanvolt.Providers.Client Gleanvolt.Providers.Testing Gleanvolt.Chargers.Hosting Gleanvolt.Modbus; do
   dotnet pack src/$p -c Release -p:BuildNumber=1 -o ../gleanvolt-chargers/artifacts/feed
 done
 ```

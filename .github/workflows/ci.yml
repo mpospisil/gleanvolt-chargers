@@ -1,7 +1,8 @@
 name: CI
 
-# Every push and pull request: build, and the tests, which run each plugin against the SDK's ChargerTestHub and a fake
-# charger (Modbus TCP or HTTP). The images are built too, without pushing, so a broken Dockerfile shows here first.
+# Every push and pull request: each charger's own solution, built and tested on its own as it would be in a repository of
+# its own, against the SDK's ChargerTestHub and a fake charger (Modbus TCP or HTTP). The images are built too, without
+# pushing, so a broken Dockerfile shows here first.
 
 on:
   push:
@@ -14,15 +15,21 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: solax, project: Solax }
+          - { name: huawei, project: Huawei }
+          - { name: goe, project: GoE }
+          - { name: shelly, project: Shelly }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - name: Build
-        run: dotnet build Gleanvolt.Chargers.slnx -c Release
-      - name: Test
-        run: dotnet test Gleanvolt.Chargers.slnx -c Release --no-build
+      - name: Build and test ${{ matrix.name }}
+        run: dotnet test ${{ matrix.name }}/Gleanvolt.Plugin.${{ matrix.project }}.slnx -c Release
 
   image:
     runs-on: ubuntu-latest

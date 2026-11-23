@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    The Shelly TopAC Portable EV Charger (EVE01-11R) as a Gleanvolt charger plugin, over its local Gen2 RPC API. Moved
+    here from Gleanvolt's own repository (plugins/Gleanvolt.Plugin.Shelly, #429, #435).
+  -->
+  <PropertyGroup>
+    <UserSecretsId>gleanvolt-plugin-shelly</UserSecretsId>
+    <RequiresAspNetWebAssets>true</RequiresAspNetWebAssets>
+  </PropertyGroup>
+
+  <!-- The charger plugin host, from nuget.org: everything but the device. -->
+  <ItemGroup>
+    <PackageReference Include="Gleanvolt.Chargers.Hosting" Version="$(GleanvoltSdkVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Gleanvolt.Plugin.Shelly.Tests" />
+  </ItemGroup>
+
+</Project>

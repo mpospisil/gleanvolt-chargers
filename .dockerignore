@@ -2,6 +2,7 @@
 **/obj/
 .git/
 .github/
-tests/
+**/tests/
+docker/
 artifacts/out/
 **/data/

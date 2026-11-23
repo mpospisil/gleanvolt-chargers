@@ -8,7 +8,7 @@ licences ask for, in the source tree, in the images and in the release zips alik
 
 | Component | Licence | Copyright |
 |---|---|---|
-| [Gleanvolt.Providers.Contracts, Gleanvolt.Providers.Client, Gleanvolt.Modbus](https://github.com/mpospisil/gleanvolt) | MIT | 2026 Martin Pospisil |
+| [Gleanvolt.Chargers.Hosting, Gleanvolt.Providers.Contracts, Gleanvolt.Providers.Client, Gleanvolt.Modbus](https://github.com/mpospisil/gleanvolt) | MIT | 2026 Martin Pospisil |
 | [NModbus](https://github.com/NModbus/NModbus), through Gleanvolt.Modbus | MIT | 2006 Scott Alexander, 2015 Dmitry Turin |
 | ASP.NET Core SignalR client, Microsoft.Extensions.* | MIT | .NET Foundation and Contributors |
 
@@ -25,7 +25,7 @@ The SolaX charger's register addresses and the use-mode's values were read from 
 `plugin_solax_ev_charger.py` rather than from a SolaX document, because no such document is publicly available. They
 travelled here with the driver Gleanvolt had built in, which carried the same attribution:
 
-- `src/Gleanvolt.Plugin.Solax/SolaxRegisters.cs`
+- `solax/src/Gleanvolt.Plugin.Solax/SolaxRegisters.cs`
 
 Individual register addresses are facts about hardware and not themselves copyrightable, and the implementation here is
 independent: a different language, architecture and control logic. The attribution is given regardless: assembling and

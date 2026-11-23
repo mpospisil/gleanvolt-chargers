@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/Gleanvolt.Plugin.GoE/Gleanvolt.Plugin.GoE.csproj" />
+  <Project Path="tests/Gleanvolt.Plugin.GoE.Tests/Gleanvolt.Plugin.GoE.Tests.csproj" />
+</Solution>

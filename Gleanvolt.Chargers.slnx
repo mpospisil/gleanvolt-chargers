@@ -1,12 +1,19 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/Gleanvolt.Chargers.Shared/Gleanvolt.Chargers.Shared.csproj" />
-    <Project Path="src/Gleanvolt.Plugin.GoE/Gleanvolt.Plugin.GoE.csproj" />
-    <Project Path="src/Gleanvolt.Plugin.Huawei/Gleanvolt.Plugin.Huawei.csproj" />
-    <Project Path="src/Gleanvolt.Plugin.Shelly/Gleanvolt.Plugin.Shelly.csproj" />
-    <Project Path="src/Gleanvolt.Plugin.Solax/Gleanvolt.Plugin.Solax.csproj" />
+  <!-- Every charger at once, for CI. Each charger also has a solution of its own in its folder. -->
+  <Folder Name="/goe/">
+    <Project Path="goe/src/Gleanvolt.Plugin.GoE/Gleanvolt.Plugin.GoE.csproj" />
+    <Project Path="goe/tests/Gleanvolt.Plugin.GoE.Tests/Gleanvolt.Plugin.GoE.Tests.csproj" />
   </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/Gleanvolt.Chargers.Tests/Gleanvolt.Chargers.Tests.csproj" />
+  <Folder Name="/huawei/">
+    <Project Path="huawei/src/Gleanvolt.Plugin.Huawei/Gleanvolt.Plugin.Huawei.csproj" />
+    <Project Path="huawei/tests/Gleanvolt.Plugin.Huawei.Tests/Gleanvolt.Plugin.Huawei.Tests.csproj" />
+  </Folder>
+  <Folder Name="/shelly/">
+    <Project Path="shelly/src/Gleanvolt.Plugin.Shelly/Gleanvolt.Plugin.Shelly.csproj" />
+    <Project Path="shelly/tests/Gleanvolt.Plugin.Shelly.Tests/Gleanvolt.Plugin.Shelly.Tests.csproj" />
+  </Folder>
+  <Folder Name="/solax/">
+    <Project Path="solax/src/Gleanvolt.Plugin.Solax/Gleanvolt.Plugin.Solax.csproj" />
+    <Project Path="solax/tests/Gleanvolt.Plugin.Solax.Tests/Gleanvolt.Plugin.Solax.Tests.csproj" />
   </Folder>
 </Solution>
