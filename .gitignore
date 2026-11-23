@@ -1,0 +1,11 @@
+bin/
+obj/
+*.user
+.vs/
+.vscode/
+# The SDK packed locally from Gleanvolt's main, until it is on nuget.org: see README.md, "Building".
+artifacts/feed/*.nupkg
+artifacts/feed/*.snupkg
+artifacts/out/
+# A plugin's data directory when run from the source tree.
+data/

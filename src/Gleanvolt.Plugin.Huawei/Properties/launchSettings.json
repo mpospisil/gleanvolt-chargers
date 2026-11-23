@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Gleanvolt.Plugin.Huawei": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:8099",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

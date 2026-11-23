@@ -1,0 +1,47 @@
+@page "/"
+@implements IDisposable
+@inject SolaxCharger Charger
+@inject PluginSettings Settings
+
+@*
+    The SolaX plugin's page: the shared frame, with the use-mode and the serial number under the reading, and the
+    phases, which set what the plugin says the charger can do.
+*@
+
+<PluginFrame Check="CheckAsync" UnitId="true">
+    <ChildContent>
+        <dl id="solax">
+            <dt>@PageText.UseMode</dt>
+            <dd id="use-mode">@(Charger.LastUseMode ?? SharedText.NotSaid.ToString())</dd>
+            <dt>@PageText.Model</dt>
+            <dd id="model">@(SolaxCharger.ModelOf(Charger.SerialNumber) ?? SharedText.NotSaid.ToString()) <span class="muted">@Charger.SerialNumber</span></dd>
+        </dl>
+    </ChildContent>
+    <Settings>
+        <section id="phases-section">
+            <h2>@SharedText.Phases</h2>
+            <p class="muted">@PageText.PhasesIntro</p>
+            <select id="phases" value="@Charger.Phases" @onchange="SetPhases">
+                <option value="3">@PageText.ThreePhases</option>
+                <option value="1">@PageText.OnePhase</option>
+            </select>
+        </section>
+    </Settings>
+</PluginFrame>
+
+@code {
+    protected override void OnInitialized() => Charger.Changed += Refresh;
+
+    public void Dispose() => Charger.Changed -= Refresh;
+
+    private void Refresh() => _ = InvokeAsync(StateHasChanged);
+
+    private Task<string> CheckAsync(DeviceAddress address, byte? unitId) =>
+        Charger.CheckAsync(address, unitId ?? 1, CancellationToken.None);
+
+    // Sent in the next hello: Gleanvolt checks its charge control against it then.
+    private void SetPhases(ChangeEventArgs change)
+    {
+        Settings.Get("phases").Save(change.Value?.ToString() == "1" ? "1" : "3");
+    }
+}

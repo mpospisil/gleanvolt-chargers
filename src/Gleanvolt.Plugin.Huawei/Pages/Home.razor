@@ -1,0 +1,43 @@
+@page "/"
+@implements IDisposable
+@inject HuaweiCharger Charger
+
+@*
+    The Huawei plugin's page: the shared frame, with the phase voltages and the charging control under the reading,
+    and the model, which sets what the plugin says the charger can do.
+*@
+
+<PluginFrame Check="CheckAsync" UnitId="true">
+    <ChildContent>
+        <p class="muted">@PageText.NoStatus</p>
+        <dl id="huawei">
+            <dt>@PageText.Voltages</dt>
+            <dd id="voltages">@(Charger.LastVoltages is { } volts ? string.Join(" · ", volts.Select(v => v.ToString("0", CultureInfo.CurrentCulture) + " V")) : SharedText.NotSaid.ToString())</dd>
+            <dt>@PageText.Control</dt>
+            <dd id="control">@(Charger.LastReading?.Mode ?? SharedText.NotSaid.ToString())</dd>
+        </dl>
+    </ChildContent>
+    <Settings>
+        <section id="model-section">
+            <h2>@PageText.Model</h2>
+            <p class="muted">@PageText.ModelIntro</p>
+            <select id="model" value="@Charger.Model" @onchange="SetModel">
+                <option value="7ks">SCharger-7KS-S0</option>
+                <option value="22kt">SCharger-22KT-S0</option>
+            </select>
+        </section>
+    </Settings>
+</PluginFrame>
+
+@code {
+    protected override void OnInitialized() => Charger.Changed += Refresh;
+
+    public void Dispose() => Charger.Changed -= Refresh;
+
+    private void Refresh() => _ = InvokeAsync(StateHasChanged);
+
+    private Task<string> CheckAsync(DeviceAddress address, byte? unitId) =>
+        Charger.CheckAsync(address, unitId ?? 1, CancellationToken.None);
+
+    private void SetModel(ChangeEventArgs change) => Charger.SetModel(change.Value?.ToString() ?? "7ks");
+}

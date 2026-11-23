@@ -1,0 +1,88 @@
+@page "/"
+@implements IDisposable
+@inject ShellyCharger Charger
+@inject ShellyRpcClient Rpc
+@inject PluginSettings Settings
+
+@*
+    The Shelly plugin's page: the shared frame, with the charger's own work_state, the phases, the unit total_power was
+    found in and the owner's settings in the Shelly app; and the charger's password, when authentication is on.
+*@
+
+<PluginFrame Check="CheckAsync">
+    <ChildContent>
+        <dl id="shelly">
+            <dt>@PageText.WorkState</dt>
+            <dd id="work-state">@(Charger.LastWorkState ?? SharedText.NotSaid.ToString())@(Charger.Paused ? $" ({PageText.PausedByGleanvolt})" : "")</dd>
+            @if (Charger.LastPower is { Phases.Count: > 0 } power)
+            {
+                <dt>@PageText.PerPhase</dt>
+                <dd>
+                    @foreach (var phase in power.Phases)
+                    {
+                        <div>@Number(phase.Voltage, "0", " V") · @Number(phase.Current, "0.0", " A") · @Number(phase.Power, "0", "")</div>
+                    }
+                </dd>
+            }
+            <dt>@PageText.UnitFound</dt>
+            <dd id="unit">@(Charger.Unit switch { PowerUnit.Watts => "W", PowerUnit.Kilowatts => "kW", _ => PageText.UnitUnknown.ToString() })</dd>
+        </dl>
+
+        @if (Charger.OwnerSettings is { } owner)
+        {
+            <h3>@PageText.OwnerSettings</h3>
+            <dl id="owner-settings">
+                <dt>auto_charge</dt>
+                <dd>@OnOff(owner.AutoCharge)</dd>
+                <dt>auto_balance</dt>
+                <dd id="owner-auto-balance" class="@(owner.AutoBalance == true ? "error" : null)">@OnOff(owner.AutoBalance)</dd>
+            </dl>
+        }
+    </ChildContent>
+    <Settings>
+        <section id="password-section">
+            <h2>@PageText.PasswordHeading</h2>
+            <p class="muted">@PageText.PasswordIntro</p>
+            <input id="password" type="password" autocomplete="new-password" @bind="_password" @bind:event="oninput" />
+            <p class="muted" id="password-state">@(Settings.Get("password").Current is null ? PageText.PasswordNone : PageText.PasswordSet)</p>
+            <div class="actions">
+                <button type="button" id="password-save" disabled="@(_password.Length == 0)" @onclick="SavePassword">@PageText.Save</button>
+                @if (Settings.Get("password").Source == SettingSource.Page)
+                {
+                    <button type="button" id="password-remove" class="secondary" @onclick="RemovePassword">@PageText.Remove</button>
+                }
+            </div>
+        </section>
+    </Settings>
+</PluginFrame>
+
+@code {
+    private string _password = string.Empty;
+
+    protected override void OnInitialized() => Charger.Changed += Refresh;
+
+    public void Dispose() => Charger.Changed -= Refresh;
+
+    private void Refresh() => _ = InvokeAsync(StateHasChanged);
+
+    private async Task<string> CheckAsync(DeviceAddress address, byte? unitId) =>
+        "work_state " + await Rpc.GetWorkStateAsync(address.ToHttpBase(), CancellationToken.None);
+
+    private void SavePassword()
+    {
+        Settings.Get("password").Save(_password);
+        _password = string.Empty;
+    }
+
+    private void RemovePassword() => Settings.Get("password").Clear();
+
+    private static string OnOff(bool? value) => value switch
+    {
+        true => PageText.On.ToString(),
+        false => PageText.Off.ToString(),
+        null => SharedText.NotSaid.ToString(),
+    };
+
+    private static string Number(double? value, string format, string unit) =>
+        value is { } number ? number.ToString(format, CultureInfo.CurrentCulture) + unit : "?";
+}

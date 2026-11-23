@@ -1,0 +1,147 @@
+name: Release
+
+# One plugin, from a tag of its own: solax-v1.0.0, huawei-v1.0.0, goe-v1.0.0, shelly-v1.0.0. A charger fix ships without
+# a Gleanvolt release, and one plugin's release ships nothing of the others.
+#
+#   test      the whole solution, before anything gets a version number
+#   image     ghcr.io/<owner>/gleanvolt-plugin-<name>:<version> and :latest, linux/amd64 + linux/arm64
+#   zips      self-contained, so nothing needs .NET installed: win-x64, linux-x64, linux-arm64
+#   release   the GitHub Release with the zips and their SHA256SUMS
+
+on:
+  push:
+    tags: ['*-v*']
+
+permissions:
+  contents: read
+
+jobs:
+  plugin:
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.plugin.outputs.name }}
+      project: ${{ steps.plugin.outputs.project }}
+      section: ${{ steps.plugin.outputs.section }}
+      port: ${{ steps.plugin.outputs.port }}
+      version: ${{ steps.plugin.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Which plugin and which version
+        id: plugin
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          name="${tag%%-v*}"
+          version="${tag#*-v}"
+          row=$(jq -c --arg name "$name" '.[] | select(.name == $name)' plugins.json)
+          if [ -z "$row" ]; then
+            echo "::error::$tag names no plugin in plugins.json"
+            exit 1
+          fi
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
+            echo "::error::$tag has no version after -v"
+            exit 1
+          fi
+          {
+            echo "name=$name"
+            echo "version=$version"
+            echo "project=$(jq -r .project <<< "$row")"
+            echo "section=$(jq -r .section <<< "$row")"
+            echo "port=$(jq -r .port <<< "$row")"
+          } >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: plugin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet test Gleanvolt.Chargers.slnx -c Release
+
+  image:
+    needs: [plugin, test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          build-args: |
+            PLUGIN=${{ needs.plugin.outputs.project }}
+            SECTION=${{ needs.plugin.outputs.section }}
+            PORT=${{ needs.plugin.outputs.port }}
+            VERSION=${{ needs.plugin.outputs.version }}
+            SOURCE_REVISION=${{ github.sha }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/gleanvolt-plugin-${{ needs.plugin.outputs.name }}:${{ needs.plugin.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/gleanvolt-plugin-${{ needs.plugin.outputs.name }}:latest
+          cache-from: type=gha,scope=${{ needs.plugin.outputs.name }}
+          cache-to: type=gha,mode=max,scope=${{ needs.plugin.outputs.name }}
+
+  zips:
+    needs: [plugin, test]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rid: [win-x64, linux-x64, linux-arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Publish
+        env:
+          PROJECT: ${{ needs.plugin.outputs.project }}
+          NAME: ${{ needs.plugin.outputs.name }}
+          VERSION: ${{ needs.plugin.outputs.version }}
+        run: |
+          out="artifacts/out/gleanvolt-plugin-${NAME}-${VERSION}-${{ matrix.rid }}"
+          dotnet publish "src/Gleanvolt.Plugin.${PROJECT}/Gleanvolt.Plugin.${PROJECT}.csproj" \
+            -c Release -r ${{ matrix.rid }} --self-contained true \
+            -p:Version="${VERSION}" -p:SourceRevisionId="${GITHUB_SHA}" -o "$out"
+          cp LICENSE THIRD-PARTY-NOTICES.md "src/Gleanvolt.Plugin.${PROJECT}/README.md" "$out/"
+          (cd artifacts/out && zip -qr "$(basename "$out").zip" "$(basename "$out")")
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zip-${{ matrix.rid }}
+          path: artifacts/out/*.zip
+
+  release:
+    needs: [plugin, image, zips]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: zip-*
+          merge-multiple: true
+          path: dist
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NAME: ${{ needs.plugin.outputs.name }}
+          VERSION: ${{ needs.plugin.outputs.version }}
+        run: |
+          cd dist
+          sha256sum *.zip > SHA256SUMS
+          flags=""
+          [[ "$VERSION" == *-* ]] && flags="--prerelease"
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" $flags \
+            --title "gleanvolt-plugin-${NAME} ${VERSION}" \
+            --notes "The ${NAME} charger plugin, ${VERSION}. Image: \`ghcr.io/${GITHUB_REPOSITORY_OWNER}/gleanvolt-plugin-${NAME}:${VERSION}\`. See src/ and its README for running it." \
+            *.zip SHA256SUMS

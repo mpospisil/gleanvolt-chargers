@@ -1,0 +1,6 @@
+[
+  { "name": "solax",  "project": "Solax",  "section": "Solax",  "port": 8098 },
+  { "name": "huawei", "project": "Huawei", "section": "Huawei", "port": 8099 },
+  { "name": "goe",    "project": "GoE",    "section": "Goe",    "port": 8100 },
+  { "name": "shelly", "project": "Shelly", "section": "Shelly", "port": 8097 }
+]

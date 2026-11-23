@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Gleanvolt.Chargers.Shared/Gleanvolt.Chargers.Shared.csproj" />
+    <Project Path="src/Gleanvolt.Plugin.GoE/Gleanvolt.Plugin.GoE.csproj" />
+    <Project Path="src/Gleanvolt.Plugin.Huawei/Gleanvolt.Plugin.Huawei.csproj" />
+    <Project Path="src/Gleanvolt.Plugin.Shelly/Gleanvolt.Plugin.Shelly.csproj" />
+    <Project Path="src/Gleanvolt.Plugin.Solax/Gleanvolt.Plugin.Solax.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Gleanvolt.Chargers.Tests/Gleanvolt.Chargers.Tests.csproj" />
+  </Folder>
+</Solution>
