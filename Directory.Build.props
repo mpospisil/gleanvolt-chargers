@@ -13,7 +13,7 @@
       The Gleanvolt SDK every plugin is built on, from nuget.org. Charger contract 1.1 (capabilities in the hello)
       is in 1.3.1 and later. Whether a plugin works with a Gleanvolt is decided by the contract's major, not by this.
     -->
-    <GleanvoltSdkVersion>1.3.1</GleanvoltSdkVersion>
+    <GleanvoltSdkVersion>1.3.2</GleanvoltSdkVersion>
 
     <!-- A plugin's own version: 0.0.0-dev in a plain build; the release workflow passes the tag's. -->
     <Version Condition="'$(Version)' == ''">0.0.0-dev</Version>
