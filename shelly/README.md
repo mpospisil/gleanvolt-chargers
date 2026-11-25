@@ -44,7 +44,7 @@ it; `--DataDirectory=<path>` puts them elsewhere.
 
 1. In Gleanvolt, **Settings → External providers** shows the **Charger** row connected, with an **Open** link to this
    plugin's page.
-2. On the page, type the charger's address (its IP, or `shelly.local` names), then **Save and check**. With
+2. On the page, type the charger's address (its IP, or `shelly.local` names) and port (80), then **Save and check**. With
    authentication on in the Shelly app, save its password there too.
 3. The page shows the charger's state, and Gleanvolt's Overview the car's. Start a charging mode on Gleanvolt's
    **Charging plan**.

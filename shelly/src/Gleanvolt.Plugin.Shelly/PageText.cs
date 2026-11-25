@@ -34,4 +34,5 @@ internal static class PageText
     public static readonly Words PasswordNone = new("No password: authentication is off.", "Žádné heslo: ověřování je vypnuté.");
     public static readonly Words Save = new("Save", "Uložit");
     public static readonly Words Remove = new("Remove", "Odebrat");
+    public static readonly Words PortHint = new("The local RPC API: 80.", "Místní RPC API: 80.");
 }

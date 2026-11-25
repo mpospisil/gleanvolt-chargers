@@ -19,4 +19,5 @@ internal static class PageText
     public static readonly Words NoStatus = new(
         "The SCharger reports no status, only power: with no power it reads Unknown, whether a car is plugged in or not.",
         "SCharger nehlásí stav, jen výkon: bez výkonu ukazuje Unknown, ať je auto připojené, nebo ne.");
+    public static readonly Words PortHint = new("Modbus TCP: 502, unless it was changed in the charger's settings.", "Modbus TCP: 502, pokud se nezměnil v nastavení nabíječky.");
 }

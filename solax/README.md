@@ -44,7 +44,7 @@ it; `--DataDirectory=<path>` puts them elsewhere.
 
 1. In Gleanvolt, **Settings → External providers** shows the **Charger** row connected, with an **Open** link to this
    plugin's page.
-2. On the page, **Find the charger** searches your network, or type its address, then **Save and check**.
+2. On the page, **Find the charger** searches your network, or type its address and port, then **Save and check**.
 3. The page shows the charger's state, and Gleanvolt's Overview the car's. Start a charging mode on Gleanvolt's
    **Charging plan**.
 

@@ -1,13 +1,15 @@
 @page "/"
 @implements IDisposable
 @inject HuaweiCharger Charger
+@inject HuaweiSearch Search
 
 @*
     The Huawei plugin's page: the shared frame, with the phase voltages and the charging control under the reading,
-    and the model, which sets what the plugin says the charger can do.
+    and the model, which sets what the plugin says the charger can do; then its address, port and unit id, and the
+    search.
 *@
 
-<PluginFrame Check="CheckAsync" UnitId="true">
+<PluginFrame>
     <ChildContent>
         <p class="muted">@PageText.NoStatus</p>
         <dl id="huawei">
@@ -26,6 +28,9 @@
                 <option value="22kt">SCharger-22KT-S0</option>
             </select>
         </section>
+
+        <AddressSection Check="CheckAsync" UnitId="true" PortHint="PageText.PortHint" />
+        <SearchSection Find="Search.FindAsync" />
     </Settings>
 </PluginFrame>
 

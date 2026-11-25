@@ -10,7 +10,7 @@ var builder = PluginHost.CreateBuilder<GoeCharger>(args, plugin);
 builder.Services.AddHttpClient(GoeCharger.HttpClientName, http => http.Timeout = TimeSpan.FromSeconds(4))
     .AddHttpMessageHandler<RecordingHandler>();
 builder.Services.AddHttpClient("search");
-builder.Services.AddSingleton<IChargerSearch, GoeSearch>();
+builder.Services.AddSingleton<GoeSearch>();
 
 PluginHost.Build(builder).Run();
 

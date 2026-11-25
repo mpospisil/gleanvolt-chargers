@@ -12,4 +12,5 @@ internal static class PageText
     public static readonly Words Ceiling = new("The unit's ceiling (ama)", "Strop jednotky (ama)");
     public static readonly Words Firmware = new("Firmware", "Firmware");
     public static readonly Words PausedByGleanvolt = new("paused by Gleanvolt", "pozastaveno Gleanvoltem");
+    public static readonly Words PortHint = new("The local HTTP API v2: 80.", "Místní HTTP API v2: 80.");
 }

@@ -1,3 +1,4 @@
+using System.Net;
 using System.Globalization;
 using Gleanvolt.Chargers;
 using Gleanvolt.Modbus;
@@ -226,9 +227,16 @@ public sealed class SolaxCharger : PluginCharger
 }
 
 /// <summary>The search: a device on port 502 whose run mode is 0-13 and whose serial names a SolaX charger, or that answers like one.</summary>
-public sealed class SolaxSearch(ModbusDevice device) : IChargerSearch
+/// <summary>
+/// How the plugin finds its charger (#461): every host that accepts a connection on the charger's Modbus port, 502,
+/// asked whether it is this charger. Reads only.
+/// </summary>
+public sealed class SolaxSearch(ModbusDevice device)
 {
-    public int Port => 502;
+    public const int Port = 502;
+
+    public Task<IReadOnlyList<FoundCharger>> FindAsync(IReadOnlyList<IPAddress> hosts, CancellationToken cancellationToken) =>
+        LanScan.SearchAsync(hosts, Port, ProbeAsync, cancellationToken);
 
     public async Task<string?> ProbeAsync(DeviceAddress address, CancellationToken cancellationToken)
     {
