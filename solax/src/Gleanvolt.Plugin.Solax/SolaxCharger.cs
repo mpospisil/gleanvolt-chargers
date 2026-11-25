@@ -1,5 +1,5 @@
-using System.Net;
 using System.Globalization;
+using System.Net;
 using Gleanvolt.Chargers;
 using Gleanvolt.Modbus;
 using Gleanvolt.Providers.Contracts;
@@ -188,11 +188,14 @@ public sealed class SolaxCharger : PluginCharger
     /// <summary>
     /// What the charger at <paramref name="address"/> is, read once: its model from the serial number, and its run
     /// mode. Throws when it does not answer as a SolaX charger: the inverter's register at the run mode's address is a
-    /// number far outside 0-13.
+    /// number far outside 0-13. The address in use is read through the plugin's own connection: the charger serves one
+    /// client (#3).
     /// </summary>
-    public async Task<string> CheckAsync(DeviceAddress address, byte unitId, CancellationToken cancellationToken)
+    public Task<string> CheckAsync(DeviceAddress address, byte unitId, CancellationToken cancellationToken) =>
+        _device.AtAsync(address, unitId, client => CheckAsync(client, cancellationToken), cancellationToken);
+
+    private static async Task<string> CheckAsync(IModbusClient client, CancellationToken cancellationToken)
     {
-        await using var client = _device.ClientFor(address, unitId);
         var runMode = await ReadInputAsync(client, SolaxRegisters.RunMode, cancellationToken).ConfigureAwait(false);
 
         if (runMode > SolaxRegisters.HighestRunMode)
@@ -226,21 +229,23 @@ public sealed class SolaxCharger : PluginCharger
     }
 }
 
-/// <summary>The search: a device on port 502 whose run mode is 0-13 and whose serial names a SolaX charger, or that answers like one.</summary>
 /// <summary>
 /// How the plugin finds its charger (#461): every host that accepts a connection on the charger's Modbus port, 502,
-/// asked whether it is this charger. Reads only.
+/// whose run mode is 0-13 and whose serial names a SolaX charger. The host in use is asked through the plugin's own
+/// connection, since the charger serves one client (#3). Reads only.
 /// </summary>
 public sealed class SolaxSearch(ModbusDevice device)
 {
     public const int Port = 502;
 
     public Task<IReadOnlyList<FoundCharger>> FindAsync(IReadOnlyList<IPAddress> hosts, CancellationToken cancellationToken) =>
-        LanScan.SearchAsync(hosts, Port, ProbeAsync, cancellationToken);
+        device.FindAsync(hosts, Port, DescribeAsync, cancellationToken);
 
-    public async Task<string?> ProbeAsync(DeviceAddress address, CancellationToken cancellationToken)
+    public Task<string?> ProbeAsync(DeviceAddress address, CancellationToken cancellationToken) =>
+        device.AtAsync(address, 1, client => DescribeAsync(client, cancellationToken), cancellationToken);
+
+    private static async Task<string?> DescribeAsync(IModbusClient client, CancellationToken cancellationToken)
     {
-        await using var client = device.ClientFor(address, 1);
         var runMode = (await client.ReadInputRegistersAsync(SolaxRegisters.RunMode, 1, cancellationToken).ConfigureAwait(false))[0];
         if (runMode > SolaxRegisters.HighestRunMode)
         {

@@ -1,5 +1,5 @@
-using System.Net;
 using System.Globalization;
+using System.Net;
 using Gleanvolt.Chargers;
 using Gleanvolt.Modbus;
 using Gleanvolt.Providers.Contracts;
@@ -199,12 +199,16 @@ public sealed class HuaweiCharger : PluginCharger
 
     /// <summary>
     /// What the charger at <paramref name="address"/> is, read once: L1 must be a mains voltage, and L2 being one too
-    /// makes it a 22KT, which is saved as the model when none was set.
+    /// makes it a 22KT, which is saved as the model when none was set. The address in use is read through the plugin's
+    /// own connection (#3).
     /// </summary>
     public async Task<string> CheckAsync(DeviceAddress address, byte unitId, CancellationToken cancellationToken)
     {
-        await using var client = _device.ClientFor(address, unitId);
-        var voltages = await client.ReadHoldingRegistersAsync(SChargerRegisters.PhaseL1Voltage, 4, cancellationToken).ConfigureAwait(false);
+        var voltages = await _device.AtAsync(
+            address,
+            unitId,
+            client => client.ReadHoldingRegistersAsync(SChargerRegisters.PhaseL1Voltage, 4, cancellationToken),
+            cancellationToken).ConfigureAwait(false);
         var l1 = Word32(voltages, 0);
         var l2 = Word32(voltages, 2);
 
@@ -244,21 +248,23 @@ public sealed class HuaweiCharger : PluginCharger
     }
 }
 
-/// <summary>The search: a device on port 502 whose L1 holds a mains voltage at 0x1000.</summary>
 /// <summary>
 /// How the plugin finds its charger (#461): every host that accepts a connection on the charger's Modbus port, 502,
-/// asked whether it is this charger. Reads only.
+/// whose L1 holds a mains voltage at 0x1000. The host in use is asked through the plugin's own connection, since the
+/// charger's Modbus server is strict about clients (#3). Reads only.
 /// </summary>
 public sealed class HuaweiSearch(ModbusDevice device)
 {
     public const int Port = 502;
 
     public Task<IReadOnlyList<FoundCharger>> FindAsync(IReadOnlyList<IPAddress> hosts, CancellationToken cancellationToken) =>
-        LanScan.SearchAsync(hosts, Port, ProbeAsync, cancellationToken);
+        device.FindAsync(hosts, Port, DescribeAsync, cancellationToken);
 
-    public async Task<string?> ProbeAsync(DeviceAddress address, CancellationToken cancellationToken)
+    public Task<string?> ProbeAsync(DeviceAddress address, CancellationToken cancellationToken) =>
+        device.AtAsync(address, 1, client => DescribeAsync(client, cancellationToken), cancellationToken);
+
+    private static async Task<string?> DescribeAsync(IModbusClient client, CancellationToken cancellationToken)
     {
-        await using var client = device.ClientFor(address, 1);
         var voltages = await client.ReadHoldingRegistersAsync(SChargerRegisters.PhaseL1Voltage, 4, cancellationToken).ConfigureAwait(false);
         var l1 = ((uint)voltages[0] << 16) | voltages[1];
         var l2 = ((uint)voltages[2] << 16) | voltages[3];
