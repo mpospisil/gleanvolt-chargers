@@ -1,0 +1,156 @@
+@implements IDisposable
+@inject PluginInfo Plugin
+@inject PluginSettings Settings
+@inject PluginCharger Charger
+@inject Gleanvolt.Providers.Client.Charger.ChargerProviderConnection Connection
+
+@*
+    The charger's address and port, the plugin's own (#459): what is in use is shown in the fields, the port with it
+    even when the configuration names none. Saving reads the charger once, through the plugin's check, and says what
+    answered. The setting keeps its host:port form, so a saved address and <Section>:Host go on working.
+*@
+
+<section id="address-section">
+    <h2>@SharedText.AddressHeading</h2>
+
+    <label for="address">@SharedText.Address</label>
+    <input id="address" type="text" autocomplete="off" spellcheck="false" @bind="_host" @bind:event="oninput"
+           placeholder="@(InUse?.Host ?? SharedText.AddressNotSet.ToString())" disabled="@_busy" />
+
+    <label for="port">@SharedText.Port</label>
+    <input id="port" type="number" min="1" max="65535" @bind="_port" placeholder="@((InUse?.Port ?? Plugin.DefaultDevicePort).ToString(CultureInfo.InvariantCulture))" disabled="@_busy" />
+    <p class="muted" id="port-hint">@PortHint</p>
+
+    @if (UnitId)
+    {
+        <label for="unit-id">Unit ID</label>
+        <input id="unit-id" type="number" min="1" max="247" @bind="_unitId" placeholder="@(Settings.Get("unitId").Current ?? "1")" disabled="@_busy" />
+    }
+
+    <p class="muted" id="address-source">
+        @(Settings.Address.Source switch
+        {
+            SettingSource.Page => SharedText.SourcePage,
+            SettingSource.Configuration => SharedText.SourceConfiguration,
+            _ => SharedText.SourceNone,
+        })
+    </p>
+
+    <div class="actions">
+        <button type="button" id="address-save" disabled="@(_busy || !CanSave)" @onclick="SaveAsync">
+            @(_busy ? SharedText.Checking : SharedText.SaveAndCheck)
+        </button>
+        @if (Settings.Address.Source == SettingSource.Page)
+        {
+            <button type="button" id="address-remove" class="secondary" disabled="@_busy" @onclick="Remove">@SharedText.Remove</button>
+        }
+    </div>
+
+    @if (_message is { } message)
+    {
+        <p id="address-message" class="@(_messageIsError ? "error" : "ok")">@message</p>
+    }
+</section>
+
+@code {
+    /// <summary>Reads the charger at an address before it is saved; returns what it says it is, throws when it does not answer as one.</summary>
+    [Parameter, EditorRequired] public Func<DeviceAddress, byte?, Task<string>> Check { get; set; } = default!;
+
+    /// <summary>What the port is on this charger, and where the owner changes it.</summary>
+    [Parameter, EditorRequired] public Words PortHint { get; set; } = default!;
+
+    /// <summary>Whether the address has a Modbus unit id.</summary>
+    [Parameter] public bool UnitId { get; set; }
+
+    private string _host = string.Empty;
+    private int? _port;
+    private int? _unitId;
+    private Words? _message;
+    private bool _messageIsError;
+    private bool _busy;
+
+    private DeviceAddress? InUse => DeviceAddress.Parse(Settings.Address.Current, Plugin.DefaultDevicePort);
+
+    // A new host, or a new port or unit id for the address in use.
+    private bool CanSave => _host.Trim().Length > 0 || (InUse is not null && (_port is not null || _unitId is not null));
+
+    protected override void OnInitialized() => Settings.Address.Changed += Refresh;
+
+    public void Dispose() => Settings.Address.Changed -= Refresh;
+
+    private void Refresh() => _ = InvokeAsync(StateHasChanged);
+
+    private async Task SaveAsync()
+    {
+        if (_busy || !CanSave)
+        {
+            return;
+        }
+
+        var host = _host.Trim().Length > 0 ? _host.Trim() : InUse?.Host;
+        var port = _port ?? InUse?.Port ?? Plugin.DefaultDevicePort;
+
+        if (port is < 1 or > 65535)
+        {
+            _messageIsError = true;
+            _message = SharedText.NotAPort;
+            return;
+        }
+
+        // The host alone: a port typed into it would be a second one.
+        if (DeviceAddress.Parse(host, port) is not { } address || address.Port != port || _unitId is < 1 or > 247)
+        {
+            _messageIsError = true;
+            _message = SharedText.NotAnAddress;
+            return;
+        }
+
+        _busy = true;
+        _message = null;
+
+        try
+        {
+            var kept = Settings.Address.Save(address.ToString());
+            if (UnitId && _unitId is { } unit)
+            {
+                kept &= Settings.Get("unitId").Save(unit.ToString(CultureInfo.InvariantCulture));
+            }
+
+            _host = string.Empty;
+            _port = null;
+            Charger.Reset();
+
+            try
+            {
+                var unitId = UnitId ? (byte?)(_unitId ?? (byte.TryParse(Settings.Get("unitId").Current, out var saved) ? saved : 1)) : null;
+                _unitId = null;
+                var answered = await Check(address, unitId);
+                _messageIsError = !kept;
+                _message = kept ? SharedText.AddressAccepted.Format(answered) : SharedText.AddressNotKept;
+
+                // A charger that answers: Gleanvolt gets a reading now, and with it the status clears.
+                if (Connection.IsAttached)
+                {
+                    await Connection.PublishNowAsync();
+                }
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _messageIsError = true;
+                _message = kept ? SharedText.AddressNotChecked.Format(ex.Message) : SharedText.AddressNotKept;
+            }
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private void Remove()
+    {
+        Settings.Address.Clear();
+        Charger.Reset();
+        _messageIsError = false;
+        _message = Settings.Address.Current is null ? SharedText.AddressRemovedNone : SharedText.AddressRemovedConfiguration;
+    }
+}

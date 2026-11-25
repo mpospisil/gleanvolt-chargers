@@ -2,13 +2,14 @@
 @implements IDisposable
 @inject SolaxCharger Charger
 @inject PluginSettings Settings
+@inject SolaxSearch Search
 
 @*
     The SolaX plugin's page: the shared frame, with the use-mode and the serial number under the reading, and the
-    phases, which set what the plugin says the charger can do.
+    phases, which set what the plugin says the charger can do; then its address, port and unit id, and the search.
 *@
 
-<PluginFrame Check="CheckAsync" UnitId="true">
+<PluginFrame>
     <ChildContent>
         <dl id="solax">
             <dt>@PageText.UseMode</dt>
@@ -26,6 +27,9 @@
                 <option value="1">@PageText.OnePhase</option>
             </select>
         </section>
+
+        <AddressSection Check="CheckAsync" UnitId="true" PortHint="PageText.PortHint" />
+        <SearchSection Find="Search.FindAsync" />
     </Settings>
 </PluginFrame>
 

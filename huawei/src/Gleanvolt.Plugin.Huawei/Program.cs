@@ -21,7 +21,7 @@ builder.Services.AddSingleton(provider =>
         provider.GetRequiredService<ILogger<ModbusDevice>>(),
         reconnectBackoff: TimeSpan.FromSeconds(5));
 });
-builder.Services.AddSingleton<IChargerSearch, HuaweiSearch>();
+builder.Services.AddSingleton<HuaweiSearch>();
 
 PluginHost.Build(builder).Run();
 

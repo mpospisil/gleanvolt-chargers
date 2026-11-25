@@ -1,0 +1,84 @@
+@using System.Net
+@inject PluginSettings Settings
+@inject PluginCharger Charger
+
+@*
+    The plugin's own search for its charger (#461): this machine's networks, or one the owner types, searched the way
+    the plugin finds its charger (Find). "Use" saves the address; the address section shows it.
+*@
+
+<section id="search-section">
+    <h2>@SharedText.SearchHeading</h2>
+    <p class="muted">@SharedText.SearchIntro</p>
+
+    <label for="network">@SharedText.Network</label>
+    <input id="network" type="text" @bind="_network" placeholder="@string.Join(", ", LanScan.OwnNetworks())" disabled="@_busy" />
+
+    <div class="actions">
+        <button type="button" id="search" disabled="@_busy" @onclick="SearchAsync">@SharedText.Search</button>
+    </div>
+
+    @if (_message is { } message)
+    {
+        <p id="search-message" class="@(_messageIsError ? "error" : "muted")">@message</p>
+    }
+
+    @if (_found is { Count: > 0 } found)
+    {
+        <ul id="search-results">
+            @foreach (var charger in found)
+            {
+                <li>
+                    <code>@charger.Address</code> — @charger.Description
+                    <button type="button" class="secondary" @onclick="() => Use(charger)">@SharedText.Use</button>
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+@code {
+    /// <summary>Finds the charger among these hosts: what answered as it, and where.</summary>
+    [Parameter, EditorRequired] public Func<IReadOnlyList<IPAddress>, CancellationToken, Task<IReadOnlyList<FoundCharger>>> Find { get; set; } = default!;
+
+    private string _network = string.Empty;
+    private bool _busy;
+    private Words? _message;
+    private bool _messageIsError;
+    private IReadOnlyList<FoundCharger>? _found;
+
+    private async Task SearchAsync()
+    {
+        var networks = _network.Trim().Length > 0 ? [_network.Trim()] : LanScan.OwnNetworks();
+        var hosts = networks.Select(LanScan.Hosts).ToList();
+
+        if (hosts.Count == 0 || hosts.Any(list => list is null))
+        {
+            _messageIsError = true;
+            _message = SharedText.BadNetwork;
+            return;
+        }
+
+        _busy = true;
+        _found = null;
+        _messageIsError = false;
+        _message = SharedText.Searching.Format(string.Join(", ", networks));
+        StateHasChanged();
+
+        try
+        {
+            _found = await Find([.. hosts.SelectMany(list => list!)], CancellationToken.None);
+            _message = _found.Count == 0 ? SharedText.FoundNothing : SharedText.Found.Format(_found.Count);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private void Use(FoundCharger charger)
+    {
+        Settings.Address.Save(charger.Address.ToString());
+        Charger.Reset();
+    }
+}

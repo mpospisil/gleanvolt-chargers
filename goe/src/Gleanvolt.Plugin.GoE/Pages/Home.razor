@@ -1,20 +1,28 @@
 @page "/"
 @implements IDisposable
 @inject GoeCharger Charger
+@inject GoeSearch Search
 
 @*
-    The go-e plugin's page: the shared frame, with the force state, the unit's own ceiling and the firmware.
+    The go-e plugin's page: the shared frame, with the force state, the unit's own ceiling and the firmware; then its address
+    and port, and the search.
 *@
 
-<PluginFrame Check="CheckAsync">
-    <dl id="goe">
-        <dt>@PageText.ForceState</dt>
-        <dd id="force-state">@(Charger.LastReading?.Mode ?? SharedText.NotSaid.ToString())@(Charger.Paused ? $" ({PageText.PausedByGleanvolt})" : "")</dd>
-        <dt>@PageText.Ceiling</dt>
-        <dd id="ceiling">@(Charger.DeviceMaxAmps is { } amps ? $"{amps} A" : SharedText.NotSaid.ToString())</dd>
-        <dt>@PageText.Firmware</dt>
-        <dd id="firmware">@(Charger.Firmware ?? SharedText.NotSaid.ToString())</dd>
-    </dl>
+<PluginFrame>
+    <ChildContent>
+        <dl id="goe">
+            <dt>@PageText.ForceState</dt>
+            <dd id="force-state">@(Charger.LastReading?.Mode ?? SharedText.NotSaid.ToString())@(Charger.Paused ? $" ({PageText.PausedByGleanvolt})" : "")</dd>
+            <dt>@PageText.Ceiling</dt>
+            <dd id="ceiling">@(Charger.DeviceMaxAmps is { } amps ? $"{amps} A" : SharedText.NotSaid.ToString())</dd>
+            <dt>@PageText.Firmware</dt>
+            <dd id="firmware">@(Charger.Firmware ?? SharedText.NotSaid.ToString())</dd>
+        </dl>
+    </ChildContent>
+    <Settings>
+        <AddressSection Check="CheckAsync" PortHint="PageText.PortHint" />
+        <SearchSection Find="Search.FindAsync" />
+    </Settings>
 </PluginFrame>
 
 @code {

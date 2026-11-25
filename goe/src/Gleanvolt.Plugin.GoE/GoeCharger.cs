@@ -297,9 +297,16 @@ public sealed class GoeCharger : PluginCharger
 public sealed class ApiOffException() : InvalidOperationException("The go-e answered 404 for /api/status: switch on the local HTTP API v2 in the go-e app.");
 
 /// <summary>The search: a web server on port 80 whose <c>/api/status</c> is a go-e's.</summary>
-public sealed class GoeSearch(IHttpClientFactory clients) : IChargerSearch
+/// <summary>
+/// How the plugin finds its charger (#461): every host that accepts a connection on the charger's HTTP API port, 80,
+/// asked whether it is this charger. Reads only.
+/// </summary>
+public sealed class GoeSearch(IHttpClientFactory clients)
 {
-    public int Port => 80;
+    public const int Port = 80;
+
+    public Task<IReadOnlyList<FoundCharger>> FindAsync(IReadOnlyList<IPAddress> hosts, CancellationToken cancellationToken) =>
+        LanScan.SearchAsync(hosts, Port, ProbeAsync, cancellationToken);
 
     public async Task<string?> ProbeAsync(DeviceAddress address, CancellationToken cancellationToken)
     {

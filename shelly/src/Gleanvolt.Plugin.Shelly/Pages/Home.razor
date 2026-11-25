@@ -6,10 +6,10 @@
 
 @*
     The Shelly plugin's page: the shared frame, with the charger's own work_state, the phases, the unit total_power was
-    found in and the owner's settings in the Shelly app; and the charger's password, when authentication is on.
+    found in and the owner's settings in the Shelly app; then its address and port, and the charger's password, when authentication is on.
 *@
 
-<PluginFrame Check="CheckAsync">
+<PluginFrame>
     <ChildContent>
         <dl id="shelly">
             <dt>@PageText.WorkState</dt>
@@ -40,6 +40,8 @@
         }
     </ChildContent>
     <Settings>
+        <AddressSection Check="CheckAsync" PortHint="PageText.PortHint" />
+
         <section id="password-section">
             <h2>@PageText.PasswordHeading</h2>
             <p class="muted">@PageText.PasswordIntro</p>

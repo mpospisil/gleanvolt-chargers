@@ -19,7 +19,7 @@ builder.Services.AddSingleton(provider =>
         provider.GetRequiredService<DeviceRecorder>(),
         provider.GetRequiredService<ILogger<ModbusDevice>>());
 });
-builder.Services.AddSingleton<IChargerSearch, SolaxSearch>();
+builder.Services.AddSingleton<SolaxSearch>();
 
 PluginHost.Build(builder).Run();
 
