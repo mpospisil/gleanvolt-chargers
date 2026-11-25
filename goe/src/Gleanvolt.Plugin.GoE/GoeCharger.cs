@@ -296,10 +296,9 @@ public sealed class GoeCharger : PluginCharger
 /// <summary>The go-e answered 404 for its status: the local HTTP API v2 is off.</summary>
 public sealed class ApiOffException() : InvalidOperationException("The go-e answered 404 for /api/status: switch on the local HTTP API v2 in the go-e app.");
 
-/// <summary>The search: a web server on port 80 whose <c>/api/status</c> is a go-e's.</summary>
 /// <summary>
 /// How the plugin finds its charger (#461): every host that accepts a connection on the charger's HTTP API port, 80,
-/// asked whether it is this charger. Reads only.
+/// whose <c>/api/status</c> is a go-e's. Reads only.
 /// </summary>
 public sealed class GoeSearch(IHttpClientFactory clients)
 {
