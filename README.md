@@ -33,6 +33,11 @@ search, the recording) and, for its tests, `Gleanvolt.Providers.Testing` (`Plugi
 is shared between the folders but `Directory.Build.props` and `NuGet.config`, so any one of them can be lifted into a
 repository of its own unchanged, with those two files beside it.
 
+A plugin's page and status texts live in `Resources/PageText.resx` (English, the neutral file) and
+`Resources/PageText.cs.resx` (Czech) under its `src` folder. The root `Directory.Build.targets` generates an internal
+`PageText` class from the neutral file, so a missing key is a compile error. A language the plugin lacks falls back to
+English. Statuses use `Words.From(PageText.ResourceManager, nameof(PageText.Key))`.
+
 ## Your own charger, in your own repository
 
 You don't need this repository to support another charger. Start a repository with a folder like the ones here, or copy
