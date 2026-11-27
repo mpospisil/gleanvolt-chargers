@@ -17,7 +17,8 @@ public class PageTextTests
     [Fact]
     public void EveryTextHasACzechTranslation()
     {
-        var czech = PageText.ResourceManager.GetResourceSet(CultureInfo.GetCultureInfo("cs"), true, false)!;
+        var czech = PageText.ResourceManager.GetResourceSet(CultureInfo.GetCultureInfo("cs"), true, false);
+        Assert.NotNull(czech); // a missing Czech satellite assembly fails here, readably
         var keys = PageText.ResourceManager.GetResourceSet(CultureInfo.InvariantCulture, true, false)!
             .Cast<DictionaryEntry>().Select(entry => (string)entry.Key);
         Assert.All(keys, key => Assert.False(string.IsNullOrWhiteSpace(czech.GetString(key)), key));
