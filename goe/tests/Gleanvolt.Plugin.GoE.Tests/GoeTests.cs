@@ -83,6 +83,7 @@ public sealed class GoeTests : IAsyncLifetime
         var status = await hub.WaitForStatusAsync(s => !s.Healthy);
         Assert.True(status.NeedsOwner);
         Assert.Contains("HTTP API v2", status.Message);
+        Assert.Equal("Nabíječka odpovídá, ale její místní HTTP API v2 je vypnuté: zapněte ho v aplikaci go-e (Internet → Pokročilá nastavení).", status.Messages!["cs"]);
     }
 
     [Theory]

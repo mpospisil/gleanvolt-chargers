@@ -3,6 +3,7 @@ using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Gleanvolt.Chargers;
+using Gleanvolt.Plugin.GoE.Resources;
 using Gleanvolt.Providers.Contracts;
 using Gleanvolt.Providers.Contracts.Charger;
 
@@ -137,7 +138,7 @@ public sealed class GoeCharger : PluginCharger
         }
         catch (ApiOffException ex)
         {
-            Problem(PageText.ApiOff, ProviderStatusCodes.NotSetUp, needsOwner: true);
+            Problem(Words.From(PageText.ResourceManager, nameof(PageText.ApiOff)), ProviderStatusCodes.NotSetUp, needsOwner: true);
             _logger.LogWarning("{Reason}", ex.Message);
             throw;
         }
