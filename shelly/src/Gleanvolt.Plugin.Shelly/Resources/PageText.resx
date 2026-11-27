@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Unauthorized" xml:space="preserve"><value>The charger asks for a password: enter the one set in the Shelly app on this page.</value></data>
+  <data name="NotTopAc" xml:space="preserve"><value>The device at the address does not answer as a Shelly TopAC: {0}</value></data>
+  <data name="AutoBalanceOn" xml:space="preserve"><value>Auto balance is on in the Shelly app. It lowers the current on its own and works against Gleanvolt: turn it off.</value></data>
+  <data name="WorkState" xml:space="preserve"><value>work_state</value></data>
+  <data name="PausedByGleanvolt" xml:space="preserve"><value>paused by Gleanvolt</value></data>
+  <data name="PerPhase" xml:space="preserve"><value>Per phase</value></data>
+  <data name="UnitFound" xml:space="preserve"><value>total_power is in</value></data>
+  <data name="UnitUnknown" xml:space="preserve"><value>not settled until the car draws</value></data>
+  <data name="OwnerSettings" xml:space="preserve"><value>In the Shelly app</value></data>
+  <data name="On" xml:space="preserve"><value>on</value></data>
+  <data name="Off" xml:space="preserve"><value>off</value></data>
+  <data name="PasswordHeading" xml:space="preserve"><value>The charger's password</value></data>
+  <data name="PasswordIntro" xml:space="preserve"><value>Only when authentication is on in the Shelly app. It is kept in the plugin's data directory, readable by the plugin alone, and never shown again.</value></data>
+  <data name="PasswordSet" xml:space="preserve"><value>A password is saved.</value></data>
+  <data name="PasswordNone" xml:space="preserve"><value>No password: authentication is off.</value></data>
+  <data name="Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="PortHint" xml:space="preserve"><value>The local RPC API: 80.</value></data>
+</root>

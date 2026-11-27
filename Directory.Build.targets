@@ -1,0 +1,26 @@
+<Project>
+  <!--
+    Each plugin's page texts: one .resx per area under Resources/, English in the neutral file and each
+    translation beside it (PageText.cs.resx). The neutral file also gets a generated class
+    (Resources.PageText.SomeKey) rather than being read by key: a key that does not exist is then a
+    compile error instead of a page that quietly shows the key. English is the fallback for a language
+    the plugin lacks.
+
+    This is a .targets file, not the props: an Update in Directory.Build.props runs before the SDK's
+    default EmbeddedResource glob and would match nothing.
+  -->
+  <!-- NeutralLanguage declares the neutral resources as English: an English lookup skips the satellite probe, and anything untranslated is English. -->
+  <PropertyGroup>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <NeutralResx Include="Resources\*.resx" Exclude="Resources\*.*.resx" />
+    <EmbeddedResource Update="@(NeutralResx)">
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>$(RootNamespace).Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>%(Filename)</StronglyTypedClassName>
+      <StronglyTypedFileName>$(IntermediateOutputPath)%(Filename).Resources.g.cs</StronglyTypedFileName>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

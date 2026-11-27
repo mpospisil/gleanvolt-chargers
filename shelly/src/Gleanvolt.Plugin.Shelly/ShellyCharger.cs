@@ -1,4 +1,5 @@
 using Gleanvolt.Chargers;
+using Gleanvolt.Plugin.Shelly.Resources;
 using Gleanvolt.Providers.Contracts;
 using Gleanvolt.Providers.Contracts.Charger;
 
@@ -265,7 +266,7 @@ public sealed class ShellyCharger : PluginCharger
 
     // Auto balance lowers the current on its own and would fight Gleanvolt's control loop: the charger reads, but only
     // the owner can fix that.
-    private void ReadingWorked() => Healthy(OwnerSettings is { AutoBalance: true } ? PageText.AutoBalanceOn : null);
+    private void ReadingWorked() => Healthy(OwnerSettings is { AutoBalance: true } ? Words.From(PageText.ResourceManager, nameof(PageText.AutoBalanceOn)) : null);
 
     private void Failed(RpcFailedException ex)
     {
@@ -274,10 +275,10 @@ public sealed class ShellyCharger : PluginCharger
         switch (ex.Failure)
         {
             case RpcFailure.Unauthorized:
-                Problem(PageText.Unauthorized, ProviderStatusCodes.Refused, needsOwner: true);
+                Problem(Words.From(PageText.ResourceManager, nameof(PageText.Unauthorized)), ProviderStatusCodes.Refused, needsOwner: true);
                 break;
             case RpcFailure.NotTopAc:
-                Problem(PageText.NotTopAc.Format(ex.Message), ProviderStatusCodes.ServiceChanged, needsOwner: true);
+                Problem(Words.From(PageText.ResourceManager, nameof(PageText.NotTopAc)).Format(ex.Message), ProviderStatusCodes.ServiceChanged, needsOwner: true);
                 break;
             case RpcFailure.NoAddress:
                 Problem(SharedText.NoAddress, ProviderStatusCodes.NotSetUp, needsOwner: true);

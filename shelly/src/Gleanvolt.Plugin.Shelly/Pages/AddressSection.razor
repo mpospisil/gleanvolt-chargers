@@ -57,7 +57,7 @@
     [Parameter, EditorRequired] public Func<DeviceAddress, byte?, Task<string>> Check { get; set; } = default!;
 
     /// <summary>What the port is on this charger, and where the owner changes it.</summary>
-    [Parameter, EditorRequired] public Words PortHint { get; set; } = default!;
+    [Parameter, EditorRequired] public string PortHint { get; set; } = string.Empty;
 
     /// <summary>Whether the address has a Modbus unit id.</summary>
     [Parameter] public bool UnitId { get; set; }
