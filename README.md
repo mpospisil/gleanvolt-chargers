@@ -44,7 +44,7 @@ You don't need this repository to support another charger. Start a repository wi
 one, and follow the
 [Gleanvolt.Chargers.Hosting README](https://github.com/mpospisil/gleanvolt/blob/main/src/Gleanvolt.Chargers.Hosting/README.md):
 a plugin is a `PluginCharger` (its capabilities, a read, the two commands), a page in the shared `PluginFrame`, and a
-`Program.cs` that names it. Gleanvolt takes any charger plugin the owner accepts, or one given a provider token; the owner runs it. The contract
+`Program.cs` that names it. Gleanvolt takes any charger plugin the owner accepts, or one given its token by hand; the owner runs it. The contract
 is in Gleanvolt's [docs/PROVIDERS.md](https://github.com/mpospisil/gleanvolt/blob/main/docs/PROVIDERS.md#the-charger-kind).
 A charger worth having here is welcome as a pull request.
 
