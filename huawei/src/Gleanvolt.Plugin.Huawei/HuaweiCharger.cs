@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Net;
 using Gleanvolt.Chargers;
 using Gleanvolt.Modbus;
+using Gleanvolt.Plugin.Huawei.Resources;
 using Gleanvolt.Providers.Contracts;
 using Gleanvolt.Providers.Contracts.Charger;
 
@@ -144,7 +145,7 @@ public sealed class HuaweiCharger : PluginCharger
             }, cancellationToken).ConfigureAwait(false);
 
             LastReading = reading;
-            Healthy(ModelKnown ? null : PageText.ChooseModel);
+            Healthy(ModelKnown ? null : Words.From(PageText.ResourceManager, nameof(PageText.ChooseModel)));
             return reading;
         }
         catch (NoAddressException)

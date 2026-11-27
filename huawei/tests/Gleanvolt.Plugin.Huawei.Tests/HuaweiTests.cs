@@ -103,6 +103,7 @@ public sealed class HuaweiTests : IAsyncLifetime
         var status = await hub.WaitForStatusAsync(s => !s.Healthy);
         Assert.True(status.NeedsOwner);
         Assert.Contains("model", status.Message);
+        Assert.Equal("Vyberte model nabíječky na této stránce nebo uložte její adresu: ověření oba modely rozliší.", status.Messages!["cs"]);
     }
 
     [Fact]

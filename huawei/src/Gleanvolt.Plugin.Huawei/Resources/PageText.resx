@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="ChooseModel" xml:space="preserve"><value>Choose the charger's model on this page, or save its address: the check tells the two apart.</value></data>
+  <data name="Model" xml:space="preserve"><value>Model</value></data>
+  <data name="ModelIntro" xml:space="preserve"><value>The 7KS charges on one phase, the 22KT on three. Gleanvolt checks its charge control against it when the plugin next connects; restart the plugin after a change.</value></data>
+  <data name="Voltages" xml:space="preserve"><value>Phase voltages</value></data>
+  <data name="Control" xml:space="preserve"><value>Charging control</value></data>
+  <data name="NoStatus" xml:space="preserve"><value>The SCharger reports no status, only power: with no power it reads Unknown, whether a car is plugged in or not.</value></data>
+  <data name="PortHint" xml:space="preserve"><value>Modbus TCP: 502, unless it was changed in the charger's settings.</value></data>
+</root>
