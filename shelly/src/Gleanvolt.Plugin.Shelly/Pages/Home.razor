@@ -25,7 +25,7 @@
                 </dd>
             }
             <dt>@PageText.UnitFound</dt>
-            <dd id="unit">@(Charger.Unit switch { PowerUnit.Watts => "W", PowerUnit.Kilowatts => "kW", _ => PageText.UnitUnknown.ToString() })</dd>
+            <dd id="unit">@(Charger.Unit switch { PowerUnit.Watts => "W", PowerUnit.Kilowatts => "kW", _ => PageText.UnitUnknown })</dd>
         </dl>
 
         @if (Charger.OwnerSettings is { } owner)
@@ -40,7 +40,7 @@
         }
     </ChildContent>
     <Settings>
-        <AddressSection Check="CheckAsync" PortHint="PageText.PortHint" />
+        <AddressSection Check="CheckAsync" PortHint="@PageText.PortHint" />
 
         <section id="password-section">
             <h2>@PageText.PasswordHeading</h2>
@@ -80,8 +80,8 @@
 
     private static string OnOff(bool? value) => value switch
     {
-        true => PageText.On.ToString(),
-        false => PageText.Off.ToString(),
+        true => PageText.On,
+        false => PageText.Off,
         null => SharedText.NotSaid.ToString(),
     };
 

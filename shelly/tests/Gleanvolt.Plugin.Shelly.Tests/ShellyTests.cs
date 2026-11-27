@@ -70,6 +70,7 @@ public sealed class ShellyTests : IAsyncLifetime
         Assert.True(status.NeedsOwner);
         Assert.Equal(ProviderStatusCodes.Refused, status.Code);
         Assert.Contains("password", status.Message);
+        Assert.Equal("Nabíječka vyžaduje heslo: zadejte na této stránce heslo nastavené v aplikaci Shelly.", status.Messages!["cs"]);
     }
 
     [Fact]
@@ -98,6 +99,7 @@ public sealed class ShellyTests : IAsyncLifetime
         var status = await hub.WaitForStatusAsync(s => !s.Healthy);
         Assert.True(status.NeedsOwner);
         Assert.Contains("Auto balance", status.Message);
+        Assert.Equal("V aplikaci Shelly je zapnuté Auto balance. Samo snižuje proud a jde proti Gleanvoltu: vypněte ho.", status.Messages!["cs"]);
     }
 
     [Theory]
