@@ -2,7 +2,7 @@
 
 The EV charger plugins for [Gleanvolt](https://github.com/mpospisil/gleanvolt), the solar EV-charging controller. In
 Gleanvolt every charger is a plugin: a small program for one charger family, with its own page for the charger's
-address and settings, that connects to Gleanvolt with the provider token. Gleanvolt decides; the plugin reads and
+address and settings, that connects to Gleanvolt and asks to be paired. Gleanvolt decides; the plugin reads and
 commands the charger. A charger fix ships here, without a Gleanvolt release.
 
 | Plugin | Chargers | Over | Image | Page |
@@ -13,7 +13,7 @@ commands the charger. A charger fix ships here, without a Gleanvolt release.
 | [Shelly](shelly/README.md) | Shelly TopAC (EVE01-11R) | Gen2 RPC | `ghcr.io/mpospisil/gleanvolt-plugin-shelly` | 8097 |
 
 Each runs from its image (`linux/amd64`, `linux/arm64`) or from a self-contained zip (`win-x64`, `linux-x64`,
-`linux-arm64`), and is released on its own: a tag `<name>-v<version>`, such as `solax-v1.0.0`. Gleanvolt 1.3.1 or later
+`linux-arm64`), and is released on its own: a tag `<name>-v<version>`, such as `solax-v1.0.0`. Gleanvolt 1.3.3 or later for pairing
 (charger contract 1.1).
 
 ## Layout: a solution per charger
@@ -39,7 +39,7 @@ You don't need this repository to support another charger. Start a repository wi
 one, and follow the
 [Gleanvolt.Chargers.Hosting README](https://github.com/mpospisil/gleanvolt/blob/main/src/Gleanvolt.Chargers.Hosting/README.md):
 a plugin is a `PluginCharger` (its capabilities, a read, the two commands), a page in the shared `PluginFrame`, and a
-`Program.cs` that names it. Gleanvolt takes any charger plugin with the provider token; the owner runs it. The contract
+`Program.cs` that names it. Gleanvolt takes any charger plugin the owner accepts, or one given a provider token; the owner runs it. The contract
 is in Gleanvolt's [docs/PROVIDERS.md](https://github.com/mpospisil/gleanvolt/blob/main/docs/PROVIDERS.md#the-charger-kind).
 A charger worth having here is welcome as a pull request.
 

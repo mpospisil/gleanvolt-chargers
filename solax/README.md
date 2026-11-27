@@ -10,7 +10,7 @@ and how fast the car charges, and this plugin reads and commands the charger. MI
 - **Modbus TCP on** in the charger's settings, on port 502 (unit 1 by default).
 - **Unlinked from the inverter's own "Green"/"ECO" charging**, so only Gleanvolt drives it.
 - A **fixed address** in your router.
-- **Gleanvolt 1.3.1 or later**, and its provider token: **Settings → External providers → Make the token**, then copy it.
+- **Gleanvolt 1.3.3 or later**, which pairs with the plugin.
 
 ## Run it
 
@@ -20,7 +20,6 @@ and how fast the car charges, and this plugin reads and commands the charger. MI
 docker run -d --name gleanvolt-plugin-solax --restart unless-stopped --network host \
   -v gleanvolt-plugin-solax:/data \
   -e Gleanvolt__Endpoint=http://localhost:8090 \
-  -e Gleanvolt__Token=<the provider token> \
   ghcr.io/mpospisil/gleanvolt-plugin-solax:latest
 ```
 
@@ -28,13 +27,15 @@ docker run -d --name gleanvolt-plugin-solax --restart unless-stopped --network h
 as Gleanvolt, or set `Gleanvolt__Endpoint` to Gleanvolt's address and `Gleanvolt__PageUrl` to the page's address as your
 browser reaches it (`http://<this machine>:8098/`).
 
+`Gleanvolt__Token` is optional. Without it the plugin asks to be paired, and you accept it in Gleanvolt (see "Set it up"). Set it, or `--Gleanvolt:Token=<token>` for the zip, only to use a provider token you made on Gleanvolt's Settings → External providers.
+
 ### From the zip (Windows, Linux)
 
 Download `gleanvolt-plugin-solax-<version>-<platform>.zip` from the
 [releases](https://github.com/mpospisil/gleanvolt-chargers/releases), unpack it, and run:
 
 ```sh
-./Gleanvolt.Plugin.Solax --Gleanvolt:Endpoint=http://localhost:8090 --Gleanvolt:Token=<the provider token>
+./Gleanvolt.Plugin.Solax --Gleanvolt:Endpoint=http://localhost:8090
 ```
 
 On Windows, `Gleanvolt.Plugin.Solax.exe`. Nothing needs .NET installed. The settings it saves go to `data/` beside
@@ -42,7 +43,8 @@ it; `--DataDirectory=<path>` puts them elsewhere.
 
 ## Set it up
 
-1. In Gleanvolt, **Settings → External providers** shows the **Charger** row connected, with an **Open** link to this
+1. Start the plugin, then accept it in Gleanvolt: **Settings → External providers** (or the setup Wizard) lists it
+   as asking to be paired. Press **Accept**. The **Charger** row then shows connected, with an **Open** link to this
    plugin's page.
 2. On the page, **Find the charger** searches your network, or type its address and port, then **Save and check**.
 3. The page shows the charger's state, and Gleanvolt's Overview the car's. Start a charging mode on Gleanvolt's
@@ -68,7 +70,7 @@ Every setting can be given on the command line (`--Section:Key=value`), in the e
 | Key | Default | What it is |
 |---|---|---|
 | `Gleanvolt:Endpoint` | `http://localhost:8090` | Gleanvolt's address |
-| `Gleanvolt:Token` | | The provider token, required |
+| `Gleanvolt:Token` | | An optional provider token; without it the plugin asks to be paired |
 | `Gleanvolt:PageUrl` | from `Urls` | The page's address as your browser reaches it |
 | `Urls` | `http://localhost:8098` | Where the page listens |
 | `DataDirectory` | `data` | Where the saved settings and the page's keys are kept, owner-only |
