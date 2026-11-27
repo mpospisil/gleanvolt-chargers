@@ -9,6 +9,7 @@
     This is a .targets file, not the props: an Update in Directory.Build.props runs before the SDK's
     default EmbeddedResource glob and would match nothing.
   -->
+  <!-- NeutralLanguage declares the neutral resources as English: an English lookup skips the satellite probe, and anything untranslated is English. -->
   <PropertyGroup>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>

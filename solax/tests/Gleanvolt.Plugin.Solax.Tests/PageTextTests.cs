@@ -2,6 +2,8 @@ using System.Collections;
 using System.Globalization;
 using Gleanvolt.Plugin.Solax.Resources;
 
+namespace Gleanvolt.Plugin.Solax.Tests;
+
 public class PageTextTests
 {
     [Theory]

@@ -2,6 +2,8 @@ using System.Collections;
 using System.Globalization;
 using Gleanvolt.Plugin.GoE.Resources;
 
+namespace Gleanvolt.Plugin.GoE.Tests;
+
 public class PageTextTests
 {
     [Theory]
