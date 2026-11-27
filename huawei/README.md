@@ -26,7 +26,7 @@ docker run -d --name gleanvolt-plugin-huawei --restart unless-stopped --network 
 as Gleanvolt, or set `Gleanvolt__Endpoint` to Gleanvolt's address and `Gleanvolt__PageUrl` to the page's address as your
 browser reaches it (`http://<this machine>:8099/`).
 
-`Gleanvolt__Token` is optional. Without it the plugin asks to be paired, and you accept it in Gleanvolt (see "Set it up"). Set it, or `--Gleanvolt:Token=<token>` for the zip, only to use a provider token you made on Gleanvolt's Settings → External providers.
+`Gleanvolt__Token` is optional. Without it the plugin asks to be paired, and you accept it in Gleanvolt (see "Set it up"). Set it, or `--Gleanvolt:Token=<token>` for the zip, only to use a token you made on Gleanvolt's Settings → Plugins.
 
 ### From the zip (Windows, Linux)
 
@@ -42,7 +42,7 @@ it; `--DataDirectory=<path>` puts them elsewhere.
 
 ## Set it up
 
-1. Start the plugin, then accept it in Gleanvolt: **Settings → External providers** (or the setup Wizard) lists it
+1. Start the plugin, then accept it in Gleanvolt: **Settings → Plugins** (or the setup Wizard) lists it
    as asking to be paired. Press **Accept**. The **Charger** row then shows connected, with an **Open** link to this
    plugin's page.
 2. On the page, **Find the charger** searches your network, or type its address and port, then **Save and check**.
@@ -50,7 +50,7 @@ it; `--DataDirectory=<path>` puts them elsewhere.
    **Charging plan**.
 
 Gleanvolt remembers the first charger plugin it accepts and lets in no other; to switch, stop the old one and press
-**Forget** beside it under **Settings → External providers**. If Gleanvolt turns the plugin away because its charge
+**Forget** beside it under **Settings → Plugins**. If Gleanvolt turns the plugin away because its charge
 control asks more than the charger can do, the same page says which setting to lower.
 
 ## What it does
@@ -70,7 +70,7 @@ Every setting can be given on the command line (`--Section:Key=value`), in the e
 | Key | Default | What it is |
 |---|---|---|
 | `Gleanvolt:Endpoint` | `http://localhost:8090` | Gleanvolt's address |
-| `Gleanvolt:Token` | | An optional provider token; without it the plugin asks to be paired |
+| `Gleanvolt:Token` | | An optional token; without it the plugin asks to be paired |
 | `Gleanvolt:PageUrl` | from `Urls` | The page's address as your browser reaches it |
 | `Urls` | `http://localhost:8099` | Where the page listens |
 | `DataDirectory` | `data` | Where the saved settings and the page's keys are kept, owner-only |
