@@ -65,7 +65,10 @@
 
     public void Dispose() => Charger.Changed -= Refresh;
 
-    private void Refresh() => _ = InvokeAsync(StateHasChanged);
+    // The viewer's culture, for the renders the charger's poll asks for from its own thread.
+    private readonly ViewerCulture _viewer = new();
+
+    private void Refresh() => _ = InvokeAsync(_viewer.Wrap(StateHasChanged));
 
     private async Task<string> CheckAsync(DeviceAddress address, byte? unitId) =>
         "work_state " + await Rpc.GetWorkStateAsync(address.ToHttpBase(), CancellationToken.None);

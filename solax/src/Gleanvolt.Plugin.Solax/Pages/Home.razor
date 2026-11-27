@@ -38,7 +38,10 @@
 
     public void Dispose() => Charger.Changed -= Refresh;
 
-    private void Refresh() => _ = InvokeAsync(StateHasChanged);
+    // The viewer's culture, for the renders the charger's poll asks for from its own thread.
+    private readonly ViewerCulture _viewer = new();
+
+    private void Refresh() => _ = InvokeAsync(_viewer.Wrap(StateHasChanged));
 
     private Task<string> CheckAsync(DeviceAddress address, byte? unitId) =>
         Charger.CheckAsync(address, unitId ?? 1, CancellationToken.None);
